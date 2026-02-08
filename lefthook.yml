@@ -7,15 +7,15 @@ pre-commit:
     # Run linter on staged files
     lint:
       run: npm run lint {staged_files}
-      glob: "*.{ts,js,json}"
+      glob: '*.{ts,js,json}'
     # Run tests on staged files
     test:
       run: npm test -- --bail --passWithNoTests
-      glob: "*.{ts,js}"
+      glob: '*.{ts,js}'
     # Check formatting
     format:
       run: npm run format:check {staged_files}
-      glob: "*.{ts,js,json}"
+      glob: '*.{ts,js,json}'
 
 # Commit message validation - enforces conventional commits
 commit-msg:
@@ -24,10 +24,10 @@ commit-msg:
       run: |
         COMMIT_MSG_FILE={1}
         COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
-        
+
         # Regex for conventional commits: type(scope)!: description
         PATTERN="^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?!?: .{1,50}"
-        
+
         if ! [[ "$COMMIT_MSG" =~ $PATTERN ]]; then
           echo ""
           echo "❌ Invalid commit message format!"
@@ -44,7 +44,7 @@ commit-msg:
           echo "Max description length: 50 characters"
           exit 1
         fi
-        
+
         # Check for subject line separation
         if [[ "$COMMIT_MSG" == *"\n"* ]]; then
           FIRST_LINE=$(echo "$COMMIT_MSG" | head -n1)
@@ -63,7 +63,7 @@ pre-push:
       run: |
         PROTECTED_BRANCHES="main|master|develop|release/*|hotfix/*"
         CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-        
+
         # Check if current branch matches protected patterns
         if [[ "$CURRENT_BRANCH" =~ ^($PROTECTED_BRANCHES)$ ]]; then
           echo "❌ Push to protected branch '$CURRENT_BRANCH' is not allowed!"
@@ -77,7 +77,7 @@ pre-push:
           echo "Please create a pull request instead."
           exit 1
         fi
-        
+
         # Check remote branch protection
         REMOTE_BRANCH=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "")
         if [[ -n "$REMOTE_BRANCH" ]]; then
@@ -93,12 +93,12 @@ pre-push:
     validate-branch-name:
       run: |
         CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-        
+
         # Skip validation for main, master, and develop
         if [[ "$CURRENT_BRANCH" == "main" ]] || [[ "$CURRENT_BRANCH" == "master" ]] || [[ "$CURRENT_BRANCH" == "develop" ]]; then
           exit 0
         fi
-        
+
         # Allowed branch patterns
         if ! [[ "$CURRENT_BRANCH" =~ ^(feature|bugfix|hotfix|release|test|docs|chore|refactor|perf)/.+$ ]]; then
           echo "❌ Invalid branch name: '$CURRENT_BRANCH'"
@@ -127,9 +127,9 @@ pre-push:
     # Run full test suite before push
     full-test-suite:
       run: npm test
-      glob: "*.{ts,js}"
+      glob: '*.{ts,js}'
 
-# Post-checkout hook - optional for additional validation  
+# Post-checkout hook - optional for additional validation
 post-checkout:
   commands:
     show-branch-info:
@@ -144,10 +144,3 @@ post-checkout:
             echo "🔧 You're on the development integration branch"
           fi
         fi
-
-# Optional: Prepare commit message helper
-prepare-commit-msg:
-  commands:
-    show-commit-template:
-      run: 'echo "# Commit message format: <type>[optional scope]: <description>" > "$1"'
-      interactive: true

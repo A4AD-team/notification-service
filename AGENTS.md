@@ -1,20 +1,21 @@
 # AGENTS.md
 
-This file contains guidelines and commands for agentic coding agents working in this NestJS notification service repository.
+This file contains guidelines and commands for agentic coding agents working in this NestJS project service repository.
 
 ## Project Overview
 
-This is a NestJS microservice for sending notifications (email, in-app, push) based on events.
-- **Framework**: NestJS 10+
+This is a NestJS project service built with TypeScript.
+
+- **Framework**: NestJS 11+
 - **Runtime**: Node.js 20+
 - **Language**: TypeScript
-- **Architecture**: Microservices with Kafka
-- **Storage**: Redis (queues, templates, rate-limit)
-- **External Services**: Nodemailer/SendGrid/Firebase
+- **Testing**: Jest with supertest for e2e
+- **Code Quality**: ESLint + Prettier + Lefthook pre-commit hooks
 
 ## Essential Commands
 
 ### Development
+
 ```bash
 # Start development server with hot reload
 npm run start:dev
@@ -30,6 +31,7 @@ npm run start:prod
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 npm test
@@ -51,15 +53,13 @@ npm run test:e2e
 ```
 
 ### Code Quality
+
 ```bash
-# Lint all TypeScript files
+# Lint all TypeScript files (auto-fixes)
 npm run lint
 
 # Lint specific file
-npm run lint -- src/notification/notification.service.ts
-
-# Fix linting issues automatically
-npm run lint -- --fix
+npm run lint -- src/app.controller.ts
 
 # Format code with Prettier
 npm run format
@@ -67,11 +67,12 @@ npm run format
 # Check code formatting
 npm run format:check
 
-# Type checking
-npm run type-check
+# Type checking (use tsc directly)
+npx tsc --noEmit
 ```
 
 ### Dependencies
+
 ```bash
 # Install new dependency
 npm install package-name
@@ -89,7 +90,8 @@ npm outdated
 ## Code Style Guidelines
 
 ### Imports
-- Use absolute imports with `@/` alias when possible
+
+- Use relative imports with `@/` alias when possible
 - Group imports in order: 1) Node.js, 2) External packages, 3) Internal modules, 4) Relative imports
 - Use `import`/`export` syntax, never `require()`
 - Remove unused imports
@@ -98,14 +100,15 @@ npm outdated
 // ❌ Bad
 import { Injectable } from '@nestjs/common';
 import { Module } from '@nestjs/common';
-import { NotificationService } from './notification.service';
+import { AppService } from './app.service';
 
 // ✅ Good
 import { Injectable, Module } from '@nestjs/common';
-import { NotificationService } from './notification.service';
+import { AppService } from './app.service';
 ```
 
 ### Formatting & Style
+
 - Use Prettier configuration (format with `npm run format`)
 - 2-space indentation
 - Single quotes for strings
@@ -113,6 +116,7 @@ import { NotificationService } from './notification.service';
 - Max line length: 100 characters
 
 ### Naming Conventions
+
 - **Files**: kebab-case (e.g., `notification.service.ts`, `user-notification.module.ts`)
 - **Classes**: PascalCase (e.g., `NotificationService`, `EmailNotificationModule`)
 - **Methods/Functions**: camelCase (e.g., `sendNotification()`, `getUserPreferences()`)
@@ -121,7 +125,8 @@ import { NotificationService } from './notification.service';
 - **Interfaces**: Prefix with `I` (e.g., `INotificationTemplate`, `IUserPreferences`)
 
 ### Type Safety
-- Always use TypeScript types - avoid `any`
+
+- Always use TypeScript types - avoid `any` (ESLint rule is disabled but prefer types)
 - Prefer explicit return types for public methods
 - Use enums for constants with multiple related values
 - Use DTOs for request/response validation
@@ -146,6 +151,7 @@ export async sendNotification(dto: INotificationDto): Promise<boolean> {
 ```
 
 ### Error Handling
+
 - Use NestJS built-in exceptions (`@nestjs/common`)
 - Create custom exceptions for domain-specific errors
 - Always include meaningful error messages
@@ -165,23 +171,27 @@ if (!email) {
 ```
 
 ### Services & Dependency Injection
+
 - Use `@Injectable()` for services
 - Inject dependencies via constructor
 - Keep services single responsibility
 - Use interfaces for service contracts
 
 ### Modules
+
 - Organize by feature/domain
 - Each feature should have its own module
 - Use `@Global()` only when necessary
 - Import/export modules properly
 
 ### Environment Configuration
+
 - Use `@nestjs/config` for configuration management
 - Store sensitive data in environment variables
 - Create typed configuration classes
 
 ### Testing
+
 - Unit tests should be co-located with source files (`.spec.ts` suffix)
 - Use Jest as testing framework
 - Mock external dependencies
@@ -207,10 +217,10 @@ describe('NotificationService', () => {
     it('should send email successfully', async () => {
       // Arrange
       jest.spyOn(emailService, 'send').mockResolvedValue(true);
-      
+
       // Act
       const result = await service.sendEmailNotification(dto);
-      
+
       // Assert
       expect(result).toBe(true);
       expect(emailService.send).toHaveBeenCalledWith(dto);
@@ -224,12 +234,14 @@ describe('NotificationService', () => {
 This repository enforces Git Flow with conventional commits:
 
 ### Branch Naming
+
 - `feature/<description>` - New features
-- `bugfix/<description>` - Bug fixes  
+- `bugfix/<description>` - Bug fixes
 - `hotfix/<description>` - Production hotfixes
 - `release/<version>` - Release preparation
 
 ### Commit Format
+
 ```
 <type>[optional scope]: <description>
 
@@ -240,6 +252,7 @@ docs(api): update notification endpoints
 ```
 
 ### Types
+
 - `feat` - New feature
 - `fix` - Bug fix
 - `docs` - Documentation
