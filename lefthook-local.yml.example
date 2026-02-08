@@ -1,0 +1,70 @@
+# Lefthook local configuration example
+# Copy this file to lefthook-local.yml for stricter local development rules
+
+# Pre-commit hook with additional checks
+pre-commit:
+  commands:
+    # Additional TypeScript specific checks
+    typecheck:
+      run: npm run type-check
+      glob: "*.{ts,tsx}"
+    
+    # Check for console.log statements (prevent debugging code)
+    no-console:
+      run: |
+        if git diff --cached --name-only | xargs grep -l "console\.log" 2>/dev/null; then
+          echo "❌ Remove console.log statements before committing"
+          echo "Use logger instead of console.log"
+          exit 1
+        fi
+      glob: "*.{ts,js}"
+
+# Enhanced pre-push with more validations
+pre-push:
+  commands:
+    # Additional branch protection
+    strict-branch-protection:
+      run: |
+        CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+        
+        # Prevent force pushes to any branch
+        if [[ "$(git rev-parse --verify HEAD)" == "$(git rev-parse --verify @{u})" ]]; then
+          echo "❌ Force push detected. Force pushes are not allowed."
+          exit 1
+        fi
+        
+        # Check if branch is behind remote
+        if git rev-parse --verify @{u} >/dev/null 2>&1; then
+          if [[ "$(git rev-list --count HEAD..@{u})" -gt 0 ]]; then
+            echo "⚠️  Your branch is behind remote. Consider pulling first."
+          fi
+        fi
+
+    # Run integration tests
+    integration-tests:
+      run: npm run test:integration
+      glob: "*.{ts,js}"
+
+# Additional pre-rebase hook
+pre-rebase:
+  commands:
+    prevent-rebase-on-protected:
+      run: |
+        CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+        PROTECTED_BRANCHES="main|master|develop"
+        
+        if [[ "$CURRENT_BRANCH" =~ ^($PROTECTED_BRANCHES)$ ]]; then
+          echo "❌ Rebasing protected branches is not allowed"
+          exit 1
+        fi
+
+# Post-merge hook for additional setup
+post-merge:
+  commands:
+    check-dependencies:
+      run: |
+        if [[ -f "package.json" ]] && [[ -f "package-lock.json" ]]; then
+          if ! npm outdated >/dev/null 2>&1; then
+            echo "📦 Some dependencies are outdated. Run 'npm update' when convenient."
+          fi
+        fi
