@@ -1,9 +1,9 @@
 export interface NotificationTemplate {
   subject?: string;
-  text: string;
+  text?: string;
   html?: string;
   title?: string;
-  message: string;
+  message?: string;
 }
 
 export class NotificationTemplates {
@@ -12,139 +12,109 @@ export class NotificationTemplates {
       'request-created',
       {
         subject: 'Ваша заявка создана',
-        text: 'Ваша заявка №{requestId} создана и отправлена на согласование.',
         message:
-          'Ваша заявка №{requestId} создана и отправлена на согласование',
+          'Ваша заявка №{requestId} создана и отправлена на согласование.',
         title: 'Заявка создана',
       },
     ],
-
     [
       'request-submitted',
       {
         subject: 'Требуется ваше согласование',
-        text: 'Требуется ваше согласование заявки №{requestId} от {initiatorName}.',
         message: 'Требуется ваше согласование: {requestType}',
         title: 'Согласование',
       },
     ],
-
-    [
-      'request-submitted-confirmation',
-      {
-        subject: 'Заявка отправлена на согласование',
-        text: 'Ваша заявка №{requestId} отправлена на согласование {approversCount} согласующим.',
-        message: 'Заявка отправлена на согласование',
-        title: 'Заявка отправлена',
-      },
-    ],
-
     [
       'request-approved',
       {
         subject: 'Заявка одобрена',
-        text: 'Ваша заявка №{requestId} одобрена.',
-        message: 'Заявка одобрена',
+        message: 'Ваша заявка №{requestId} одобрена.',
         title: 'Заявка одобрена',
       },
     ],
-
     [
       'request-rejected',
       {
         subject: 'Заявка отклонена',
-        text: 'Ваша заявка №{requestId} отклонена.\n\nПричина: {reason}',
-        message: 'Заявка отклонена',
+        message: 'Ваша заявка №{requestId} отклонена.\n\nПричина: {reason}',
         title: 'Заявка отклонена',
       },
     ],
-
     [
       'request-changes-requested',
       {
         subject: 'Требуется доработка заявки',
-        text: 'Ваша заявка №{requestId} возвращена на доработку.\n\nТребуемые изменения:\n{requiredChanges}',
-        message: 'Требуется доработка заявки',
+        message:
+          'Ваша заявка №{requestId} возвращена на доработку.\n\nТребуемые изменения:\n{requiredChanges}',
         title: 'Требуется доработка',
       },
     ],
-
     [
       'request-resubmitted',
       {
         subject: 'Заявка отправлена повторно',
-        text: 'Ваша заявка №{requestId} повторно отправлена на согласование.',
-        message: 'Заявка отправлена повторно',
+        message:
+          'Ваша заявка №{requestId} повторно отправлена на согласование.',
         title: 'Заявка отправлена повторно',
       },
     ],
-
     [
       'request-cancelled',
       {
         subject: 'Заявка отменена',
-        text: 'Ваша заявка №{requestId} отменена.\n\nПричина: {reason}',
-        message: 'Заявка отменена',
+        message: 'Ваша заявка №{requestId} отменена.\n\nПричина: {reason}',
         title: 'Заявка отменена',
       },
     ],
-
     [
       'request-stage-advanced',
       {
         subject: 'Заявка переведена на следующий этап',
-        text: 'Ваша заявка №{requestId} переведена на этап "{nextStageName}".',
-        message: 'Заявка переведена на следующий этап',
+        message:
+          'Ваша заявка №{requestId} переведена на этап "{nextStageName}".',
         title: 'Этап изменен',
       },
     ],
-
     [
       'stage-timeout',
       {
         subject: 'Истекло время согласования',
-        text: 'Истекло время согласования этапа "{stageName}" заявки №{requestId}.\n\nДедлайн был: {deadline}',
-        message: 'Время согласования истекло',
+        message: 'Истекло время согласования этапа "{stageName}"',
         title: 'Время истекло',
       },
     ],
-
     [
       'stage-timeout-initiator',
       {
         subject: 'Задержка согласования вашей заявки',
-        text: 'Задержка согласования этапа "{stageName}" заявки №{requestId}.\n\nДедлайн: {deadline}',
-        message: 'Задержка согласования',
+        message: 'Задержка согласования этапа "{stageName}"',
         title: 'Задержка согласования',
       },
     ],
-
     [
       'stage-reminder',
       {
         subject: 'Напоминание о согласовании',
-        text: 'Напоминание: до истечения времени согласования этапа "{stageName}" заявки №{requestId} осталось {hoursRemaining} часов.\n\nДедлайн: {deadline}',
-        message: 'Напоминание о согласовании',
+        message:
+          'Напоминание: до истечения времени согласования этапа "{stageName}"',
         title: 'Напоминание',
       },
     ],
-
     [
       'comment-added',
       {
         subject: 'Новый комментарий к заявке',
-        text: '{authorName} добавил комментарий к заявке №{requestId}:\n\n{commentText}',
-        message: 'Новый комментарий',
+        message: '{authorName} добавил комментарий к заявке',
         title: 'Новый комментарий',
       },
     ],
-
     [
       'request-completed-approver',
       {
         subject: 'Согласование завершено',
-        text: 'Согласование заявки №{requestId} завершено. Результат: {result}',
-        message: 'Согласование завершено',
+        message:
+          'Согласование заявки №{requestId} завершено. Результат: {result}',
         title: 'Согласование завершено',
       },
     ],
@@ -158,18 +128,26 @@ export class NotificationTemplates {
     template: NotificationTemplate,
     data: Record<string, any>,
   ): NotificationTemplate {
-    const render = (text: string): string => {
-      return text.replace(/\{(\w+)\}/g, (match, key) => {
-        return data[key] !== undefined ? String(data[key]) : match;
+    const renderString = (text: string): string => {
+      if (!text || !data || typeof data !== 'object') {
+        return text;
+      }
+
+      let result = text;
+      Object.entries(data).forEach(([key, value]) => {
+        const regex = new RegExp(`\\{${key}\\}`, 'g');
+        result = result.replace(regex, String(value));
       });
+
+      return result;
     };
 
     return {
-      subject: template.subject ? render(template.subject) : undefined,
-      text: render(template.text),
-      html: template.html ? render(template.html) : undefined,
-      title: template.title ? render(template.title) : undefined,
-      message: render(template.message),
+      subject: template.subject ? renderString(template.subject) : undefined,
+      text: template.text ? renderString(template.text) : undefined,
+      html: template.html ? renderString(template.html) : undefined,
+      title: template.title ? renderString(template.title) : undefined,
+      message: template.message ? renderString(template.message) : undefined,
     };
   }
 
