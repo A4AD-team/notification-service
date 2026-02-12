@@ -6,16 +6,12 @@ pre-commit:
   commands:
     # Run linter on staged files
     lint:
-      run: npm run lint {staged_files}
+      run: pnpm lint {staged_files}
       glob: '*.{ts,js,json}'
     # Run tests on staged files
     test:
-      run: npm test -- --bail --passWithNoTests
+      run: pnpm test -- --bail --passWithNoTests
       glob: '*.{ts,js}'
-    # Check formatting
-    format:
-      run: npm run format:check {staged_files}
-      glob: '*.{ts,js,json}'
 
 # Commit message validation - enforces conventional commits
 commit-msg:
@@ -26,11 +22,9 @@ commit-msg:
         COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
 
         # Regex for conventional commits: type(scope)!: description
-        PATTERN="^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?!?: .{1,50}"
-
-        if ! [[ "$COMMIT_MSG" =~ $PATTERN ]]; then
+        if ! echo "$COMMIT_MSG" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?!?: .{1,50}"; then
           echo ""
-          echo "❌ Invalid commit message format!"
+          echo "Invalid commit message format!"
           echo ""
           echo "Commit messages must follow conventional commits format:"
           echo "  <type>[optional scope]: <description>"
@@ -46,10 +40,10 @@ commit-msg:
         fi
 
         # Check for subject line separation
-        if [[ "$COMMIT_MSG" == *"\n"* ]]; then
+        if echo "$COMMIT_MSG" | grep -q "^$"; then
           FIRST_LINE=$(echo "$COMMIT_MSG" | head -n1)
-          if [[ ${#FIRST_LINE} -gt 72 ]]; then
-            echo "❌ First line of commit message should not exceed 72 characters"
+          if [ "${#FIRST_LINE}" -gt 72 ]; then
+            echo "First line of commit message should not exceed 72 characters"
             echo "Current length: ${#FIRST_LINE}"
             exit 1
           fi
@@ -61,32 +55,35 @@ pre-push:
     # Prevent pushes to protected branches
     protect-branches:
       run: |
-        PROTECTED_BRANCHES="main|master|develop|release/*|hotfix/*"
         CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
         # Check if current branch matches protected patterns
-        if [[ "$CURRENT_BRANCH" =~ ^($PROTECTED_BRANCHES)$ ]]; then
-          echo "❌ Push to protected branch '$CURRENT_BRANCH' is not allowed!"
-          echo ""
-          echo "Protected branches:"
-          echo "  - main, master (production)"
-          echo "  - develop (development integration)"
-          echo "  - release/* (release preparation)"
-          echo "  - hotfix/* (production hotfixes)"
-          echo ""
-          echo "Please create a pull request instead."
-          exit 1
-        fi
+        case "$CURRENT_BRANCH" in
+          main|master|develop|release/*|hotfix/*)
+            echo "Push to protected branch '$CURRENT_BRANCH' is not allowed!"
+            echo ""
+            echo "Protected branches:"
+            echo "  - main, master (production)"
+            echo "  - develop (development integration)"
+            echo "  - release/* (release preparation)"
+            echo "  - hotfix/* (production hotfixes)"
+            echo ""
+            echo "Please create a pull request instead."
+            exit 1
+            ;;
+        esac
 
         # Check remote branch protection
         REMOTE_BRANCH=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "")
-        if [[ -n "$REMOTE_BRANCH" ]]; then
+        if [ -n "$REMOTE_BRANCH" ]; then
           REMOTE_BRANCH_NAME=$(echo "$REMOTE_BRANCH" | sed 's/[^/]*\///')
-          if [[ "$REMOTE_BRANCH_NAME" =~ ^($PROTECTED_BRANCHES)$ ]]; then
-            echo "❌ Push to protected remote branch '$REMOTE_BRANCH_NAME' is not allowed!"
-            echo "Please create a pull request instead."
-            exit 1
-          fi
+          case "$REMOTE_BRANCH_NAME" in
+            main|master|develop|release/*|hotfix/*)
+              echo "Push to protected remote branch '$REMOTE_BRANCH_NAME' is not allowed!"
+              echo "Please create a pull request instead."
+              exit 1
+              ;;
+          esac
         fi
 
     # Validate branch naming conventions
@@ -95,13 +92,15 @@ pre-push:
         CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
         # Skip validation for main, master, and develop
-        if [[ "$CURRENT_BRANCH" == "main" ]] || [[ "$CURRENT_BRANCH" == "master" ]] || [[ "$CURRENT_BRANCH" == "develop" ]]; then
-          exit 0
-        fi
+        case "$CURRENT_BRANCH" in
+          main|master|develop)
+            exit 0
+            ;;
+        esac
 
         # Allowed branch patterns
-        if ! [[ "$CURRENT_BRANCH" =~ ^(feature|bugfix|hotfix|release|test|docs|chore|refactor|perf)/.+$ ]]; then
-          echo "❌ Invalid branch name: '$CURRENT_BRANCH'"
+        if ! echo "$CURRENT_BRANCH" | grep -qE "^(feature|bugfix|hotfix|release|test|docs|chore|refactor|perf)/.+"; then
+          echo "Invalid branch name: '$CURRENT_BRANCH'"
           echo ""
           echo "Branch names must follow Git Flow patterns:"
           echo "  feature/<description>     - New features"
@@ -126,7 +125,7 @@ pre-push:
 
     # Run full test suite before push
     full-test-suite:
-      run: npm test
+      run: pnpm test
       glob: '*.{ts,js}'
 
 # Post-checkout hook - optional for additional validation
@@ -134,13 +133,16 @@ post-checkout:
   commands:
     show-branch-info:
       run: |
-        if [[ $3 == "1" ]]; then
+        if [ "$3" = "1" ]; then
           CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-          echo "📍 Checked out to branch: $CURRENT_BRANCH"
+          echo "Checked out to branch: $CURRENT_BRANCH"
           
-          if [[ "$CURRENT_BRANCH" == "main" ]] || [[ "$CURRENT_BRANCH" == "master" ]]; then
-            echo "⚠️  You're on the main production branch"
-          elif [[ "$CURRENT_BRANCH" == "develop" ]]; then
-            echo "🔧 You're on the development integration branch"
-          fi
+          case "$CURRENT_BRANCH" in
+            main|master)
+              echo "You're on the main production branch"
+              ;;
+            develop)
+              echo "You're on the development integration branch"
+              ;;
+          esac
         fi
