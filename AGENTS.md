@@ -4,7 +4,7 @@ Guidelines for agentic coding agents working in this NestJS notification service
 
 ## Project Overview
 
-NestJS 11+ notification service with TypeScript, Node.js 20+, Jest testing, and ESLint/Prettier code quality.
+NestJS 11+ notification service with TypeScript, Node.js 20+, pnpm package manager, Jest testing, and ESLint/Prettier code quality.
 
 ## Essential Commands
 
@@ -12,56 +12,59 @@ NestJS 11+ notification service with TypeScript, Node.js 20+, Jest testing, and 
 
 ```bash
 # Start development server with hot reload
-npm run start:dev
+pnpm start:dev
 
 # Start development server in debug mode
-npm run start:debug
+pnpm start:debug
 
 # Build for production
-npm run build
+pnpm build
 
 # Start production build
-npm run start:prod
+pnpm start:prod
 ```
 
 ### Testing
 
 ```bash
 # Run all tests
-npm test
+pnpm test
 
 # Run tests in watch mode
-npm run test:watch
+pnpm test:watch
 
 # Run tests with coverage
-npm run test:cov
+pnpm test:cov
 
 # Run specific test file
-npm test -- notification.service.spec.ts
+pnpm test -- app.controller.spec.ts
 
 # Run tests matching a pattern
-npm test -- --testNamePattern="notification"
+pnpm test -- --testNamePattern="should return"
 
 # Run e2e tests
-npm run test:e2e
+pnpm test:e2e
+
+# Debug tests
+pnpm test:debug
 ```
 
 ### Code Quality
 
 ```bash
 # Lint all TypeScript files (auto-fixes)
-npm run lint
+pnpm lint
 
 # Lint specific file
-npm run lint -- src/app.controller.ts
+pnpm lint -- src/app.controller.ts
 
 # Format code with Prettier
-npm run format
+pnpm format
 
-# Check code formatting
-npm run format:check
+# Check code formatting (no pre-defined script)
+npx prettier --check "src/**/*.ts" "test/**/*.ts"
 
-# Type checking (use tsc directly)
+# Type checking
 npx tsc --noEmit
 ```
 
@@ -69,81 +72,68 @@ npx tsc --noEmit
 
 ```bash
 # Install new dependency
-npm install package-name
+pnpm add package-name
 
 # Install dev dependency
-npm install --save-dev package-name
+pnpm add --save-dev package-name
 
 # Update dependencies
-npm update
+pnpm update
 
 # Check for outdated packages
-npm outdated
+pnpm outdated
 ```
 
 ## Code Style Guidelines
 
-### Imports
+### Imports & Formatting
 
-- Use relative imports with `@/` alias when possible
+- Use relative imports for internal modules
 - Group imports: Node.js → External packages → Internal modules → Relative imports
 - Use `import`/`export` syntax, never `require()`
 - Remove unused imports
-
-### Formatting & Style
-
-- Prettier config: 2-space indentation, single quotes, trailing commas, 100 char line length
-- Format with `npm run format`, check with `npm run format:check`
+- Prettier: 2-space indentation, single quotes, trailing commas, auto line endings
+- ESLint: typescript-eslint with recommendedTypeChecked config
 
 ### Naming Conventions
 
-- **Files**: kebab-case (`notification.service.ts`, `user-notification.module.ts`)
-- **Classes**: PascalCase (`NotificationService`, `EmailNotificationModule`)
-- **Methods/Functions**: camelCase (`sendNotification()`, `getUserPreferences()`)
-- **Variables**: camelCase (`notificationTemplate`, `userEmail`)
-- **Constants**: UPPER_SNAKE_CASE (`MAX_RETRY_ATTEMPTS`, `NOTIFICATION_TYPES`)
-- **Interfaces**: Prefix with `I` (`INotificationTemplate`, `IUserPreferences`)
+- **Files**: kebab-case (`notification.service.ts`)
+- **Classes**: PascalCase (`NotificationService`)
+- **Methods/Functions**: camelCase (`sendNotification()`)
+- **Variables**: camelCase (`notificationTemplate`)
+- **Constants**: UPPER_SNAKE_CASE (`MAX_RETRY_ATTEMPTS`)
+- **Interfaces**: PascalCase (no I prefix: `NotificationTemplate`)
 
-### Type Safety
+### Type Safety & Error Handling
 
-- Use TypeScript types, avoid `any` (ESLint rule disabled but prefer types)
+- Use TypeScript types, `any` is allowed but discouraged
 - Prefer explicit return types for public methods
-- Use enums for related constants, DTOs for request/response validation
-
-### Error Handling
-
+- Use enums for related constants, DTOs for validation
+- Enable strict null checks in tsconfig
 - Use NestJS built-in exceptions (`@nestjs/common`)
 - Create custom exceptions for domain-specific errors
 - Include meaningful error messages and proper HTTP status codes
 
-### Services & Dependency Injection
+### Services & Modules
 
 - Use `@Injectable()` for services
 - Inject dependencies via constructor
 - Keep services single responsibility
-- Use interfaces for service contracts
-
-### Modules
-
-- Organize by feature/domain with separate modules per feature
+- Organize by feature/domain with separate modules
 - Use `@Global()` only when necessary
-- Import/export modules properly
-
-### Environment Configuration
-
-- Use `@nestjs/config` for configuration management
-- Store sensitive data in environment variables
-- Create typed configuration classes
+- Properly import/export modules
 
 ### Testing
 
 - Unit tests co-located with source files (`.spec.ts` suffix)
+- E2E tests in `test/` directory (`.e2e-spec.ts` suffix)
 - Use Jest framework, mock external dependencies
-- Test both success and failure scenarios, aim for >80% coverage
+- Test both success and failure scenarios
+- Aim for >80% coverage
 
 ## Git Workflow
 
-This repository enforces Git Flow with conventional commits:
+This repository enforces Git Flow with Lefthook hooks:
 
 ### Branch Naming
 
@@ -152,40 +142,35 @@ This repository enforces Git Flow with conventional commits:
 - `hotfix/<description>` - Production hotfixes
 - `release/<version>` - Release preparation
 
-### Commit Format
+### Protected Branches
+
+Direct pushes blocked to: `main`, `master`, `develop`, `release/*`, `hotfix/*`
+
+### Commit Format (Conventional Commits)
 
 ```
 <type>[optional scope]: <description>
 
+Types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert
+Max description length: 50 characters
+
 Examples:
-feat(notification): add email template support
-fix: resolve memory leak in rate limiter
-docs(api): update notification endpoints
+  feat(notification): add email template support
+  fix: resolve memory leak in rate limiter
 ```
 
-### Types
+### Pre-commit Hooks
 
-- `feat` - New feature
-- `fix` - Bug fix
-- `docs` - Documentation
-- `style` - Code style
-- `refactor` - Code refactoring
-- `test` - Tests
-- `chore` - Maintenance
-- `perf` - Performance
+- Lint, test, and check formatting on staged files
+- Validate commit message format
 
 ## Development Workflow
 
 1. Create feature branch: `git checkout -b feature/your-feature`
-2. Make changes and run tests: `npm test`
-3. Check formatting: `npm run format:check`
-4. Lint code: `npm run lint`
+2. Make changes and run tests: `pnpm test`
+3. Check formatting: `npx prettier --check "src/**/*.ts"`
+4. Lint code: `pnpm lint`
 5. Commit with conventional format: `git commit -m "feat: add new feature"`
-6. Push and create PR
+6. Push and create PR (never push to protected branches)
 
-## Important Notes
-
-- Never push directly to protected branches (`main`, `develop`, `release/*`, `hotfix/*`)
-- Run tests and linting before committing (enforced by pre-commit hooks)
-- Use NestJS CLI: `nest generate module notification`
-- Follow SOLID principles and document complex logic
+**Important:** Use pnpm (not npm). Run tests and linting before committing (enforced by hooks). Use NestJS CLI: `nest generate module notification`
