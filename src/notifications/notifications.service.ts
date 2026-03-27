@@ -17,8 +17,6 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { InAppChannel } from './channels/in-app.channel';
 import { EmailChannel } from './channels/email.channel';
 import { PushChannel } from './channels/push.channel';
-import { ClientKafka } from '@nestjs/microservices';
-import { Inject } from '@nestjs/common';
 
 export interface NotificationList {
   notifications: Notification[];
@@ -40,8 +38,6 @@ export class NotificationsService {
     private readonly inAppChannel: InAppChannel,
     private readonly emailChannel: EmailChannel,
     private readonly pushChannel: PushChannel,
-    @Inject('KAFKA_SERVICE')
-    private readonly kafkaClient: ClientKafka,
   ) {}
 
   async create(dto: CreateNotificationDto): Promise<Notification> {
@@ -145,20 +141,9 @@ export class NotificationsService {
   private async publishNotificationSent(
     notification: Notification,
   ): Promise<void> {
-    try {
-      this.kafkaClient.emit('notification.sent', {
-        notificationId: notification.id,
-        userId: notification.userId,
-        type: notification.type,
-        channels: notification.channels,
-        sentAt: notification.sentAt,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      this.logger.error(
-        `Failed to publish notification.sent event: ${error.message}`,
-      );
-    }
+    this.logger.debug(
+      `Notification sent event: id=${notification.id}, userId=${notification.userId}, type=${notification.type}`,
+    );
   }
 
   async findAll(

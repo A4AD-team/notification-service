@@ -4,7 +4,7 @@ Guidelines for agentic coding agents working in this NestJS notification service
 
 ## Project Overview
 
-NestJS 11+ notification service with TypeScript, Node.js 20+, pnpm package manager, Jest testing, and ESLint/Prettier code quality.
+NestJS 11+ notification service with TypeScript, Node.js 20+, pnpm package manager, RabbitMQ for message consumption, PostgreSQL for persistence, Redis for caching, Jest testing, and ESLint/Prettier code quality.
 
 ## Essential Commands
 
@@ -83,6 +83,20 @@ pnpm update
 # Check for outdated packages
 pnpm outdated
 ```
+
+## RabbitMQ Configuration
+
+The service uses RabbitMQ for consuming events from other services:
+
+- Exchange: `comments`, `posts`, `notifications` (topic exchanges)
+- Queues:
+  - `notification-comment-created` - handles comment.created events
+  - `notification-comment-liked` - handles comment.liked events
+  - `notification-post-liked` - handles post.liked events
+  - `notification-mention-created` - handles mention.created events
+
+Environment variables:
+- `RABBITMQ_URI` - RabbitMQ connection string (default: `amqp://guest:guest@localhost:5672`)
 
 ## Code Style Guidelines
 
