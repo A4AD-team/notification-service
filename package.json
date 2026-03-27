@@ -37,7 +37,6 @@
     "class-validator": "^0.14.3",
     "helmet": "^8.1.0",
     "ioredis": "^5.9.3",
-    "kafkajs": "^2.2.4",
     "pg": "^8.18.0",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
@@ -45,7 +44,8 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.28",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "amqplib": "^0.10.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -59,6 +59,7 @@
     "@types/node": "^22.10.7",
     "@types/nodemailer": "^7.0.9",
     "@types/supertest": "^6.0.2",
+    "@types/amqplib": "^0.10.5",
     "@types/uuid": "^11.0.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
